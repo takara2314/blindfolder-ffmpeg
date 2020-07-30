@@ -29,7 +29,7 @@ shutil.copy("video.mp4", "stills")
 # 作業ディレクトリをstillsにし、FFmpegでの変換コマンドを実行結果を非表示で実行
 os.chdir("stills")
 FNULL = open(os.devnull, 'w')
-subprocess.run(["ffmpeg", "-i", "video.mp4", "-r", "15", "-vcodec", "png", "image_%03d.png"], stdout=FNULL, stderr=subprocess.STDOUT, shell=True)
+subprocess.run(["ffmpeg", "-i", "video.mp4", "-r", "30", "-vcodec", "png", "image_%03d.png"], stdout=FNULL, stderr=subprocess.STDOUT, shell=True)
 os.remove("video.mp4")
 print("変換しました。")
 
@@ -39,8 +39,14 @@ face_cascade = cv2.CascadeClassifier("../haarcascade_frontalface_default.xml")
 # 目のカスケード分類器を読み込む
 eye_cascade = cv2.CascadeClassifier("../haarcascade_eye.xml")
 
+print("各静止画から顔と目を検知します。")
 counter = 1
+os.mkdir("rectangled")
 for pngData in os.listdir("./"):
+    if not os.path.isfile(pngData):
+        continue
+
+    print("load:", pngData)
     # イメージファイルの読み込み
     img = cv2.imread(pngData)
 
@@ -61,7 +67,17 @@ for pngData in os.listdir("./"):
         for (ex,ey,ew,eh) in eyes:
             # 検知した目を矩形で囲む
             cv2.rectangle(roi_color,(ex,ey),(ex+ew,ey+eh),(0,255,0),2)
-            # cv2.imshow('img', img)
-            output_file_name = "image_%03d.png" % counter
-            cv2.imwrite(output_file_name, img)
-            counter += 1
+
+    output_file_name = "rectangled\\image_%03d.png" % counter
+    cv2.imwrite(output_file_name, img)
+    counter += 1
+
+print("検知しました。")
+
+
+print("1つの動画に変換します。")
+os.chdir("rectangled")
+FNULL = open(os.devnull, 'w')
+subprocess.run(["ffmpeg", "-framerate", "30", "-i", "image_%03d.png", "-vcodec", "libx264", "-pix_fmt", "yuv420p", "-r", "30", "output.mp4"], stdout=FNULL, stderr=subprocess.STDOUT, shell=True)
+shutil.move("output.mp4", "../../output.mp4")
+print("変換しました。")
