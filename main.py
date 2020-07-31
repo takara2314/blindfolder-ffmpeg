@@ -53,8 +53,7 @@ for pngData in os.listdir("./"):
 	if not os.path.isfile(pngData):
 		continue
 
-	# デバッグ用
-	# print("load:", pngData)
+	print("loaded:", pngData)
 
 	# イメージファイルの読み込み
 	img = cv2.imread(pngData)
@@ -66,7 +65,7 @@ for pngData in os.listdir("./"):
 	faces = face_cascade.detectMultiScale(gray)
 	for (x,y,w,h) in faces:
 		# 検知した顔を矩形で囲む (オプション)
-		# cv2.rectangle(img,(x,y),(x+w,y+h),(255,0,0),2)
+		cv2.rectangle(img,(x,y),(x+w,y+h),(255,0,0),2)
 		# 顔画像（グレースケール）
 		roi_gray = gray[y:y+h, x:x+w]
 		# 顔画像（カラースケール）
@@ -77,7 +76,7 @@ for pngData in os.listdir("./"):
 		# デバッグ用
 		# print(type(eyes))
 		# print(eyes)
-		
+
 		counter2 = 0
 		memo_ex = None
 		memo_ey = None
@@ -105,7 +104,7 @@ for pngData in os.listdir("./"):
 				continue
 
 			# 検知した目を矩形で囲む (オプション)
-			# cv2.rectangle(roi_color,(ex,ey),(ex+ew,ey+eh),(0,255,255),1)
+			cv2.rectangle(roi_color,(ex,ey),(ex+ew,ey+eh),(0,255,255),1)
 			counter2 += 1
 
 	output_file_name = "rectangled\\image_%03d.png" % counter
